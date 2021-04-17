@@ -25,7 +25,7 @@ def getDataSet(path):
     data['dsport'] = data['dsport'].astype("float32")
     data['sport'] = data['sport'].astype("float32")
     data['label'] = data['label'].astype("float32")
-    # 获取训练集与测试集
+    # 获取训练集
     data = data[0:500000]
     return data
 

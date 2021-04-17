@@ -16,6 +16,7 @@ from socket import inet_aton
 from struct import unpack
 
 windows = tk.Tk()
+windows.title("实时入侵检测系统")
 count = 0
 attack = 0
 figure = plt.figure(figsize=(3, 2))
@@ -118,7 +119,7 @@ def getClass(dataItem, model):
     else:
         pred = False
     plt.clf()
-    plt.title('此批流量分类:'+str(count+attack), fontdict={'weight': 'normal', 'size': 20})
+    plt.title('当前处理流量总量:'+str(count+attack), fontdict={'weight': 'normal', 'size': 20})
     # explode 强调某元素
     plt.pie(x=[attack, count], colors=['#9999ff', '#ff9999', '#7777aa'], autopct='%3.1f %%',
             labels=['异常流量总量:'+str(attack), '正常流量总量:'+str(count)], explode=(0.1, 0))
