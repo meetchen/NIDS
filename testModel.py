@@ -10,6 +10,7 @@ import torch
 import pandas as pd
 from torch import nn
 import matplotlib.pyplot as plt
+from sklearn.metrics import classification_report
 
 
 class Model(nn.Module):
@@ -65,8 +66,10 @@ def getPrediction(model, test, label, plt):
     count = 0
     for i in range(len(prediction)):
         if prediction[i].item() > 0.5:
+            prediction[i] = 1
             pred = 1
         else:
+            prediction[i] = 0
             pred = 0
         if pred == label[i].item():
             count = count + 1
@@ -81,6 +84,9 @@ def getPrediction(model, test, label, plt):
             plt.legend(loc="best", fontsize=10, bbox_to_anchor=(1.1, 1.05), borderaxespad=0.3)
             plt.pause(0.2)
     plt.ioff()
+    y_t = label.cpu().detach()
+    y_p = prediction.cpu().detach().squeeze()
+    print(classification_report(y_t, y_p))
     return count
 
 

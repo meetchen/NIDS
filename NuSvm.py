@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
-# @Time    : 2021/4/17 10:33
+# @Time    : 2021/4/17 13:33
 # @Author  : 奥利波德
-# @FileName: NaiveBayes.py
+# @FileName: NuSvm.py
 # @Software: PyCharm
 # @Blog    ：https://blog.csdn.net/qq_44265507
+from sklearn.svm import SVC
 import pandas as pd
+from remind import remind_over
 from struct import unpack
 from socket import inet_aton
-from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report
 
-inLens = 10000 * 70
-testLens = 10000 * 50
-predLens = 10000 * 20
+W = 10000
+inLens = int(W * 70)
+testLens = int(W * 0.2)
 path = './NB15/UNSW-NB15_3.csv'
 
 
@@ -40,33 +42,37 @@ def getData(path):
     return trainData, predictData
 
 
-def train(train_data):
-    print("Training Model ... ")
-    train_data_y = train_data['label']
-    train_data_X = train_data[['srcip', 'sport', 'dstip', 'dsport']]
-    print("GaussianNB Fitting")
-    GNBclf = GaussianNB()
-    GNBclf.fit(train_data_X, train_data_y)
-    return GNBclf
+def process_data(data):
+    print("process_data ing ...")
+    y = data['label']
+    x = data[['srcip', 'sport', 'dstip', 'dsport']]
+    return x, y
 
 
-def pred(predict_data, GNBclf):
-    print("Predicting ...")
-    predict_data_x = predict_data[['srcip', 'sport', 'dstip', 'dsport']]
-    predict_data_y = predict_data['label']
-    preds = GNBclf.predict(predict_data_x)
+def train(data):
+    x, y = process_data(data)
+    print("train ing ...")
+    SVCClf = SVC(kernel='rbf', probability=True)
+    SVCClf.fit(x, y)
+    print(SVCClf)
+    return SVCClf
+
+
+def predict(model, predict_data):
+    print("predict ing ...")
+    x, y = process_data(predict_data)
+    predicts = model.predict(x)
+    print(classification_report(y, predicts))
     count = 0
-    for i in range(len(predict_data_y)):
-        if predict_data_y.iloc[i] == preds[i]:
+    for i in range(len(predict_data)):
+        if y.iloc[i] == predicts[i]:
             count = count + 1
-    precision = count / len(predict_data_y)
-    print(classification_report(predict_data_y,preds))
-    return precision,count
+    precision = count / len(predict_data)
+    return precision, count
 
 
 if __name__ == '__main__':
-    trainData, predictData = getData(path)
-    GNBclf = train(trainData)
-    precision,count = pred(predictData, GNBclf)
-
-    print("测试集总量：{}  分类准确次数：{}  准确率：{:.2f}%".format(len(predictData), count, precision * 100))
+    train_data, predict_data = getData(path)
+    model = train(train_data)
+    precision, count = predict(model, predict_data)
+    print("测试集总量：{}  分类准确次数：{}  准确率：{:.2f}%".format(len(predict_data), count, precision * 100))
